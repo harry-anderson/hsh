@@ -49,7 +49,7 @@ fn main() {
                 let root = Path::new(loc);
                 // try to go to new location
                 if let Err(e) = std::env::set_current_dir(root) {
-                    eprintln!("error: cd failed {}", e);
+                    eprintln!("error: cd failed");
                 }
             }
             command => match Command::new(command).args(args).output() {
