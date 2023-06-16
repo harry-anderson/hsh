@@ -70,5 +70,21 @@ mod tests {
             parse_input(r#"print 'paired'"#),
             Ok(("print", vec![String::from("paired")]))
         );
+
+        // from the task
+        assert_eq!(
+            parse_input(r#"/usr/bin/printf "The cat's name is %s.\n" 'Theodore Roosevelt'"#),
+            Ok((
+                "/usr/bin/printf",
+                vec![
+                    String::from("The cat's name is %s.\\n"),
+                    String::from("Theodore Roosevelt")
+                ]
+            ))
+        );
+        assert_eq!(
+            parse_input(r#"/usr/bin/printf "Missing quote"#),
+            Err("error: mismatched quotes")
+        );
     }
 }
