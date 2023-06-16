@@ -18,16 +18,20 @@ pub fn parse_input(input: &str) -> Result<(&str, Vec<String>), &str> {
     while let Some(ch) = args.next() {
         match ch {
             '"' => {
-                let rest: Vec<char> = args.take_while(|ch| ch != &'"').collect();
-                let _cl = args.next();
-                let rest: String = String::from_iter(rest);
-                parsed.push(rest);
+                let Some(pair_idx) = args.clone().position(|ch| ch == '"') else {
+                    return Err("error: mismatched quotes")
+                };
+                let quoted = args.take(pair_idx).collect::<String>();
+                let _closing = args.next();
+                parsed.push(quoted)
             }
             '\'' => {
-                let rest: Vec<char> = args.take_while(|ch| ch != &'\'').collect();
-                let _cl = args.next();
-                let rest: String = String::from_iter(rest);
-                parsed.push(rest);
+                let Some(pair_idx) = args.clone().position(|ch| ch == '\'') else {
+                    return Err("error: mismatched quotes")
+                };
+                let quoted = args.take(pair_idx).collect::<String>();
+                let _closing = args.next();
+                parsed.push(quoted)
             }
             ' ' => {}
             ch => {
@@ -45,23 +49,26 @@ pub fn parse_input(input: &str) -> Result<(&str, Vec<String>), &str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn quotes() {
+        // missing quote
+        assert_eq!(
+            parse_input("print 'missing"),
+            Err("error: mismatched quotes")
+        );
+        assert_eq!(
+            parse_input(r#"print "missing"#),
+            Err("error: mismatched quotes")
+        );
 
-    #[test]
-    fn it_works() {
-        let input = vec![
-            "    ls     ",
-            "cd     /abc",
-            "echo extra    spaces    will    be    removed",
-            r#"printf "The cat's name is %s.\n" 'Theodore Roosevelt'"#,
-        ];
-        for i in input {
-            let x = parse_input(i);
-            println!("{:?}", x);
-        }
-    }
-    #[test]
-    fn s() {
-        let x = parse_input("print 'sdfs");
-        println!("{:?}", x);
+        // paired quote
+        assert_eq!(
+            parse_input("print 'paired'"),
+            Ok(("print", vec![String::from("paired")]))
+        );
+        assert_eq!(
+            parse_input(r#"print 'paired'"#),
+            Ok(("print", vec![String::from("paired")]))
+        );
     }
 }
