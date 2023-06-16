@@ -35,8 +35,7 @@ pub fn parse_input(input: &str) -> Result<(&str, Vec<String>), &str> {
             }
             ' ' => {}
             ch => {
-                let rest: Vec<char> = args.take_while(|ch| ch != &' ').collect();
-                let rest: String = String::from_iter(rest);
+                let rest: String = args.take_while(|ch| ch != &' ').collect();
                 let rest = format!("{ch}{rest}");
                 parsed.push(rest);
             }
