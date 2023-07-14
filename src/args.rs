@@ -36,8 +36,7 @@ pub fn parse_input(input: &str) -> Result<Vec<String>, &str> {
 mod tests {
     use super::*;
     #[test]
-    fn quotes() {
-        // missing quote
+    fn missing_quotes() {
         assert_eq!(
             parse_input("print 'missing"),
             Err("error: mismatched quotes")
@@ -46,8 +45,10 @@ mod tests {
             parse_input(r#"print "missing"#),
             Err("error: mismatched quotes")
         );
+    }
 
-        // paired quote
+    #[test]
+    fn paired_quotes() {
         let mut res = parse_input("print 'paired'").unwrap().into_iter();
         let cmd = res.next().unwrap();
         let args = res.collect::<Vec<String>>();
@@ -63,8 +64,21 @@ mod tests {
             (cmd, args),
             (String::from("print"), vec![String::from("paired")])
         );
+    }
 
-        // from the task
+    #[test]
+    fn quoted_cmd() {
+        let mut res = parse_input(r#""print" command"#).unwrap().into_iter();
+        let cmd = res.next().unwrap();
+        let args = res.collect::<Vec<String>>();
+        assert_eq!(
+            (cmd, args),
+            (String::from("print"), vec![String::from("command")])
+        );
+    }
+
+    #[test]
+    fn nested_quoutes() {
         let mut res = parse_input(r#"/usr/bin/printf "The cat's name is %s.\n" 'Theodore Roosevelt'"#)
             .unwrap()
             .into_iter();
