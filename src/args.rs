@@ -1,19 +1,6 @@
-pub fn parse_input(input: &str) -> Result<(&str, Vec<String>), &str> {
-    if input.is_empty() {
-        return Err("");
-    };
-    // trim leading and trailing whitespace
-    let input = input.trim();
-    // command is 0 to first space or end of string
-    let idx = input.find(' ').unwrap_or(input.len());
-    let command = &input[0..idx];
-    // if the command is the total string, we are done
-    if idx == input.len() {
-        return Ok((command, vec![]));
-    }
-    // we have args
+pub fn parse_input(input: &str) -> Result<Vec<String>, &str> {
     let mut parsed = vec![];
-    let args = &mut input[idx + 1..].chars();
+    let args = &mut input.chars();
 
     while let Some(ch) = args.next() {
         match ch {
@@ -42,7 +29,7 @@ pub fn parse_input(input: &str) -> Result<(&str, Vec<String>), &str> {
         }
     }
 
-    Ok((command, parsed))
+    Ok(parsed)
 }
 
 #[cfg(test)]
@@ -61,25 +48,37 @@ mod tests {
         );
 
         // paired quote
+        let mut res = parse_input("print 'paired'").unwrap().into_iter();
+        let cmd = res.next().unwrap();
+        let args = res.collect::<Vec<String>>();
         assert_eq!(
-            parse_input("print 'paired'"),
-            Ok(("print", vec![String::from("paired")]))
+            (cmd, args),
+            (String::from("print"), vec![String::from("paired")])
         );
+
+        let mut res = parse_input(r#"print 'paired'"#).unwrap().into_iter();
+        let cmd = res.next().unwrap();
+        let args = res.collect::<Vec<String>>();
         assert_eq!(
-            parse_input(r#"print 'paired'"#),
-            Ok(("print", vec![String::from("paired")]))
+            (cmd, args),
+            (String::from("print"), vec![String::from("paired")])
         );
 
         // from the task
+        let mut res = parse_input(r#"/usr/bin/printf "The cat's name is %s.\n" 'Theodore Roosevelt'"#)
+            .unwrap()
+            .into_iter();
+        let cmd = res.next().unwrap();
+        let args = res.collect::<Vec<String>>();
         assert_eq!(
-            parse_input(r#"/usr/bin/printf "The cat's name is %s.\n" 'Theodore Roosevelt'"#),
-            Ok((
-                "/usr/bin/printf",
+            (cmd, args),
+            (
+                String::from("/usr/bin/printf"),
                 vec![
                     String::from("The cat's name is %s.\\n"),
                     String::from("Theodore Roosevelt")
                 ]
-            ))
+            )
         );
         assert_eq!(
             parse_input(r#"/usr/bin/printf "Missing quote"#),

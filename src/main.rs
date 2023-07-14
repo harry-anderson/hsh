@@ -32,23 +32,27 @@ fn main() {
         };
         //
         // // prepare command and args
-
         let (command, args) = match parse_input(input) {
             Err(e) => {
                 eprintln!("error {e}");
                 continue;
             }
-            Ok((c, a)) => (c, a),
+            Ok(res) => {
+                let mut res = res.into_iter();
+                let cmd = res.next().unwrap();
+                let args = res.collect::<Vec<String>>();
+                (cmd, args)
+            }
         };
 
-        match command {
+        match command.as_str() {
             EXIT => return,
             CD => {
                 // new location is first arg or default location
                 let loc = args.iter().peekable().peek().map_or("/", |l| *l);
                 let root = Path::new(loc);
                 // try to go to new location
-                if let Err(e) = std::env::set_current_dir(root) {
+                if let Err(_e) = std::env::set_current_dir(root) {
                     eprintln!("error: cd failed");
                 }
             }
